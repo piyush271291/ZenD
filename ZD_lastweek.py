@@ -1,7 +1,8 @@
 import urllib2, json
 import datetime, time
 import re
-from datetime import timedelta
+import os
+from flask import Flask
 
 
 def generate_date():
@@ -31,7 +32,7 @@ def alltickets_lastweek():
         created_at = i["created_at"]
         print (str(ticket_id) + "  " + created_at)
         count += 1
-    print count
+    return count
 
 
 def whistletickets():
@@ -45,7 +46,7 @@ def whistletickets():
             created_at = i["created_at"]
             print (str(ticket_id) + "  " + created_at)
             count += 1
-    print count
+    return count
 
 
 def customertickets():
@@ -59,7 +60,7 @@ def customertickets():
             created_at = i["created_at"]
             print (str(ticket_id) + "  " + created_at)
             count += 1
-    print count
+    return count
 
 
 def search_query(last_sun_time,this_sun_time):
@@ -90,6 +91,7 @@ def false_recovered_alerts():
                     created_at = i["created_at"]
                     print (str(ticket_id) + "  " + created_at)
                     count += 1
+    return count
 
 
 def Incident_tickets():
@@ -104,10 +106,12 @@ def Incident_tickets():
                     created_at = i["created_at"]
                     print (str(ticket_id) + "  " + created_at)
                     count += 1
-    print count
+    str1= "Incident ticket count: {}".format(count)
+    return str1
 
 
 def Solved_tickets():
+    # type: () -> object
     count = 0
     Q = "solved<24hours+type%3Aticket"
     print(Q)
@@ -118,20 +122,23 @@ def Solved_tickets():
     req.add_header("Authorization", "Basic cGl5dXNoQHBsYXRmb3JtOS5jb206c0cjMmY3cm0=")
 
     response = urllib2.urlopen(req)
-    r = json.load(response)
-    for i in r["results"]:
-        ticket_id = i["id"]
-        created_at = i["created_at"]
-        print (str(ticket_id) + "  " + created_at)
-        count += 1
-    print count
+    r = str(json.load(response))
+    return r
 
 
-# tickets_hours()
-#Incident_tickets()
+app = Flask(__name__)
 
-alltickets_lastweek()
-false_recovered_alerts()
-customertickets()
-whistletickets()
+@app.route('/last', methods=['POST'])
+
+def last():
+    count= Incident_tickets()
+    return count
+    count1= Solved_tickets()
+    return count1
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT',4390 ))
+    app.run(host='0.0.0.0', port=port, debug=True)
+
 
